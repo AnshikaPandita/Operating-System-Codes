@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include <string.h>
+
+int main()
+{
+    char  pat[100], temp[1000];
+    FILE *fp;
+    int count = 0;
+    int total = 0;
+
+    char *fn = "/home/ccoewlab1-pc83/Desktop/829/file1";
+
+    printf("Enter pattern to be searched: ");
+    scanf("%s", pat);
+
+    fp = fopen(fn, "r");
+    if (fp == NULL) {
+        printf("Error: file not found.\n");
+        return 1;
+    }
+
+    while (fgets(temp, 200, fp) != NULL) {
+        count = 0;
+        char *ptr = temp;
+        while ((ptr = strstr(ptr, pat)) != NULL) {
+            count++;
+            ptr++;
+            total++ ;
+        }
+        if(count > 0) {
+            printf("\nLine: %s ", temp);
+            printf("Number of occurrences of '%s' : %d\n", pat, count);
+        }
+    }
+    printf("\nTotal occurences : %d \n",total);
+    fclose(fp);
+    return 0;
+}

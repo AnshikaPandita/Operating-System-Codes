@@ -1,0 +1,26 @@
+#include<fcntl.h>
+#include<stdio.h>
+#include<unistd.h>
+int main(void)
+{
+FILE *fp1;
+FILE *fp2;
+char ch=0;
+fp1=fopen("/home/ccoewlab1pc92/Desktop/annie/addressbook.txt","r");
+fp2=fopen("/home/ccoewlab1pc92/Desktop/annie/abc","w");
+if(fp1==NULL)
+{
+printf("Unable to open the file");
+}
+else
+{
+while(!feof(fp1))
+{
+ch=fgetc(fp1);
+fputc(ch,fp2);
+}
+fclose(fp1);
+fclose(fp2);
+}
+return 0;
+}
