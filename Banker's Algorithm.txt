@@ -1,0 +1,193 @@
+#include <stdio.h>
+
+#define MAX_PROCESS 100
+#define MAX_RESOURCES 100
+
+int max[MAX_PROCESS][MAX_RESOURCES];
+int alloc[MAX_PROCESS][MAX_RESOURCES];
+int need[MAX_PROCESS][MAX_RESOURCES];
+int avail[MAX_RESOURCES];
+int n, r;
+
+void input();
+void show();
+int safetyCheck();
+int requestCheck(int process, int request[]);
+
+int main()
+{
+    printf("********** Banker's Algorithm ************\n");
+    input();
+    show();
+
+    // Calculate and display the Need Matrix
+    printf("\nNeed Matrix:\n");
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < r; j++)
+        {
+            need[i][j] = max[i][j] - alloc[i][j];
+            printf("%d ", need[i][j]);
+        }
+        printf("\n");
+    }
+
+    if (safetyCheck())
+        printf("\nThe system is in a safe state.\n");
+    else
+    {
+        printf("\nThe system is in an unsafe state.\n");
+        return 0;
+    }
+
+    // Example request check
+    int process = 0;
+    int request[MAX_RESOURCES];
+    printf("\nEnter the request for process P%d:\n", process);
+    for (int i = 0; i < r; i++)
+        scanf("%d", &request[i]);
+
+    if (requestCheck(process, request))
+        printf("\nThe request is granted.\n");
+    else
+        printf("\nThe request is denied.\n");
+
+    return 0;
+}
+
+void input()
+{
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    printf("Enter the number of resource instances: ");
+    scanf("%d", &r);
+
+    printf("Enter the Max Matrix:\n");
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < r; j++)
+            scanf("%d", &max[i][j]);
+
+    printf("Enter the Allocation Matrix:\n");
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < r; j++)
+            scanf("%d", &alloc[i][j]);
+
+    printf("Enter the Available Resources:\n");
+    for (int i = 0; i < r; i++)
+        scanf("%d", &avail[i]);
+}
+
+void show()
+{
+    printf("\nProcess\tAllocation\tMax\t\tAvailable\n");
+
+    for (int i = 0; i < n; i++)
+    {
+        printf("P%d\t", i + 1);
+
+        for (int j = 0; j < r; j++)
+            printf("%d ", alloc[i][j]);
+
+        printf("\t");
+
+        for (int j = 0; j < r; j++)
+            printf("%d ", max[i][j]);
+
+        printf("\t");
+
+        if (i == 0)
+        {
+            for (int j = 0; j < r; j++)
+                printf("%d ", avail[j]);
+        }
+
+        printf("\n");
+    }
+}
+
+int safetyCheck()
+{
+    int finish[MAX_PROCESS] = {0};
+    int work[MAX_RESOURCES];
+    int safeSequence[MAX_PROCESS];
+    int count = 0;
+
+    for (int i = 0; i < r; i++)
+        work[i] = avail[i];
+
+    while (count < n)
+    {
+        int found = 0;
+
+        for (int i = 0; i < n; i++)
+        {
+            if (finish[i] == 0)
+            {
+                int j;
+                for (j = 0; j < r; j++)
+                {
+                    if (need[i][j] > work[j])
+                        break;
+                }
+
+                if (j == r)
+                {
+                    for (int k = 0; k < r; k++)
+                    {
+                        work[k] += alloc[i][k];
+                        need[i][k] = 0;
+                    }
+
+                    safeSequence[count++] = i;
+                    finish[i] = 1;
+                    found = 1;
+                }
+            }
+        }
+
+        if (found == 0)
+            break;
+    }
+
+    if (count == n)
+    {
+        printf("\nSafe Sequence: ");
+        for (int i = 0; i < n; i++)
+            printf("P%d ", safeSequence[i] + 1);
+        printf("\n");
+
+        return 1; // System is in a safe state
+    }
+
+    return 0; // System is in an unsafe state
+}
+
+int requestCheck(int process, int request[])
+{
+    for (int i = 0; i < r; i++)
+    {
+        if (request[i] > need[process][i] || request[i] > avail[i])
+            return 0; // Request exceeds need or available resources
+    }
+
+    for (int i = 0; i < r; i++)
+    {
+        avail[i] -= request[i];
+        alloc[process][i] += request[i];
+        need[process][i] -= request[i];
+    }
+
+    if (safetyCheck())
+        return 1; // Request granted
+
+    // Request denied, revert changes
+    for (int i = 0; i < r; i++)
+    {
+        avail[i] += request[i];
+        alloc[process][i] -= request[i];
+        need[process][i] += request[i];
+    }
+
+    return 0; // Request denied
+}
