@@ -1,0 +1,97 @@
+createRecord()
+{
+echo   "The name of database is addressbook.txt"
+touch addressbook.txt
+if [ "addressbook.txt" ]
+then
+echo "File is created successfully"
+else
+echo "File creation failed"
+fi
+}
+
+
+insertRecord()
+{
+echo "Enter the name of the person: "
+read name
+echo "Enter the phone number: "
+read pnumber
+echo "Enter the pincode: "
+read pincode
+echo "Enter the city name: "
+read city
+echo "$name $pnumber $pincode $city">>addressbook.txt
+echo "Record inserted successfully"
+}
+
+displayRecord(){
+echo " "
+echo "Rexords found !"
+echo "Name PhoneNumber Pincode City"
+cat addressbook.txt
+}
+
+
+
+searchRecord(){
+echo "Enter name whose record is to be searched."
+read name
+echo ""
+echo "Records found."
+grep "$name" addressbook.txt
+}
+
+
+
+deleteRecord(){
+echo "Enter name whose record is to be deleted ."
+read name
+grep -v "$name" addressboook.txt>temp.txt
+mv temp.txt addressbook.txt
+echo "Record is successfully deleted"
+}
+
+
+
+modifyRecord(){
+echo "Enter name whose record is to be modified."
+read name
+grep -v "$name " addressbook.txt>temp.txt
+echo "Enter new name."
+read newname
+echo "Enter new phone no."
+read pNo
+echo "Enter new pincode"
+read pincode
+echo "Enter new city"
+read city
+echo "$newname $pNo $pincode $city">>temp.txt
+mv temp.txt addressbook.txt
+echo "Record is a=successfully modified!"
+}
+
+ch=6
+while [ $ch -ge 6 ]
+do
+echo " "
+echo " "
+echo "----------------------------MENU-----------------------"
+echo "1.Create Address Book"
+echo "2.Insert record in Address book"
+echo "3.Display Address Record"
+echo "4.Search a record"
+echo "5.Modify a record "
+echo "6.Delete a record"
+echo "Enter a number"
+read n
+case $n in
+1)  createRecord;;
+2)  insertRecord;;
+3)displayRecord;;
+4)searchRecord;;
+5) modifyRecord;;
+6)deleteRecord;;
+*) echo "sorry ";;
+esac
+done
